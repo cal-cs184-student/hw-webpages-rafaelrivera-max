@@ -39,7 +39,7 @@
 		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
 
 		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
+			<img src="images/lion.jpg" alt="Lion" style="width:50%"/>
 			<figcaption>You can add images with captions!</figcaption>
 		</figure>
 
@@ -48,54 +48,114 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		For this homework I built a mini rasterizer end‑to‑end: triangle coverage, supersampling antialiasing, color interpolation, texture sampling, and mipmapping. The most interesting part was seeing how small math choices (sample location, edge tests, UV derivatives) immediately show up in image quality. Putting all of the pieces together felt like assembling a tiny graphics pipeline from scratch.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I compute the axis‑aligned bounding box of each triangle, clamp it to the framebuffer, and only iterate over pixels inside that box. For each pixel, I test the sample at the pixel center (x + 0.5, y + 0.5) using edge‑function/barycentric checks. If the point is inside or on an edge, I fill the pixel. This works regardless of vertex winding order.
+		<br><br>
+		This algorithm is no worse than checking every sample in the bounding box, because it only iterates over that box and skips everything outside it.
 
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task1_test4.png" width="400px"/>
+				  <figcaption>Task 1: basic/test4.svg (default view, pixel inspector on edge).</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task2_spp1.png" width="400px"/>
+				  <figcaption>Task 2: 1 spp (same inspector spot).</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task2_spp4.png" width="400px"/>
+				  <figcaption>Task 2: 4 spp (same inspector spot).</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task2_spp16.png" width="400px"/>
+				  <figcaption>Task 2: 16 spp (same inspector spot).</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I implemented supersampling by storing multiple sub‑pixel samples per pixel in a supersample buffer. During rasterization, I test each sub‑pixel sample and write into the buffer. In resolve, I average the samples back into a single framebuffer color.
+		<br><br>
+		Supersampling helps because it captures partial coverage within a pixel. Thin edges and skinny triangles stop “snapping” to single pixels, so aliasing and jaggies are reduced. The improvements are very clear at 4× and 16×.
 
 		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I modified the cubeman to make him wave by rotating and bending his right arm while keeping the rest of the body stable. The goal was a clean, readable gesture without changing proportions too much.
+		<figure>
+			<img src="images/task3_my_robot.png" alt="My Robot" style="width:60%"/>
+			<figcaption>Waving cubeman (docs/my_robot.svg).</figcaption>
+		</figure>
 
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Barycentric coordinates represent any point inside a triangle as a weighted blend of the three vertices, where the weights sum to 1. This makes them perfect for smooth color interpolation and texture mapping across a triangle.
+		<figure>
+			<img src="images/task4_test7.png" alt="test7" style="width:60%"/>
+			<figcaption>basic/test7.svg (sample rate 1).</figcaption>
+		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Pixel sampling determines how we fetch a texel for a given UV coordinate. Nearest picks the closest texel, while bilinear blends the surrounding four texels. Nearest is sharper but blockier; bilinear is smoother, especially at oblique angles or minification. Supersampling helps both, but bilinear still looks cleaner overall.
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task5_nearest_1.png" width="400px"/>
+				  <figcaption>P_NEAREST, 1 spp.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task5_nearest_16.png" width="400px"/>
+				  <figcaption>P_NEAREST, 16 spp.</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task5_linear_1.png" width="400px"/>
+				  <figcaption>P_LINEAR, 1 spp.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task5_linear_16.png" width="400px"/>
+				  <figcaption>P_LINEAR, 16 spp.</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Level sampling chooses which mipmap level to use based on the pixel’s footprint in texture space. L_ZERO always uses level 0, while L_NEAREST chooses the closest mip level. Mipmaps reduce aliasing when textures are minified and generally improve temporal stability, but they cost extra memory. P_NEAREST vs P_LINEAR still controls how texels are filtered within the chosen mip level.
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6_l0_pn.png" width="400px"/>
+				  <figcaption>L_ZERO + P_NEAREST.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6_l0_pl.png" width="400px"/>
+				  <figcaption>L_ZERO + P_LINEAR.</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6_ln_pn.png" width="400px"/>
+				  <figcaption>L_NEAREST + P_NEAREST.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6_ln_pl.png" width="400px"/>
+				  <figcaption>L_NEAREST + P_LINEAR.</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		If you include this section, add your competition SVG screenshot(s) here and describe the concept + implementation.
 
 		<h2>Additional Notes (please remove)</h2>
 		<ul>
@@ -110,3 +170,4 @@
 		</div>
 	</body>
 </html>
+
